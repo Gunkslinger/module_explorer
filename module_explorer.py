@@ -18,10 +18,10 @@ except IndexError:
 
 # try to import the module we want to inspect.
 # h/t to https://stackoverflow.com/questions/301134
-# TODO: need to handle packages
+# TODO: need to handle packages. DONE.
 
 try:
-    module = importlib.import_module(module_name, package=None)
+    module = importlib.import_module(module_name)
 except ImportError:
     print(f"Can't import {module_name}! Bailing!")
     sys.exit(0)

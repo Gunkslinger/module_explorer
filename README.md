@@ -1,5 +1,5 @@
 <h1>Module Explorer</h1>
-This is a terminal python script that I wrote while trying to teach myself python.
+This is a python terminal script that I wrote while trying to teach myself python.
 It will display information about the specified python module installed in the system
 libraries, including the author's documentation contianed in the source file's docstrings.
 

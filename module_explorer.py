@@ -13,12 +13,11 @@ try:
     module_name = sys.argv[1].split(".")[0] # remove suffix and discard it
 except IndexError:
     print("Module Explorer v 0.1\n view documentation directly from python modules")
-    print(f"\nUsage: python {sys.argv[0]} <module>[.py|.pyi]")
+    print(f"\nUsage: python {sys.argv[0]} <module>[.py|.pyi] | <package>")
     sys.exit(0)
 
 # try to import the module we want to inspect.
 # h/t to https://stackoverflow.com/questions/301134
-# TODO: need to handle packages. DONE.
 
 try:
     module = importlib.import_module(module_name)

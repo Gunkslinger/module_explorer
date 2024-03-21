@@ -39,20 +39,18 @@ def main(args: list):
     # go through the members list of tuples and get the info we want
     for object_name, object_type in module_members_list:
         if object_name.find("__") >= 0:
-            continue  # skip dunders
+            continue  # skip dunders: need to learn more about this
         if isinstance(object_type, (int, str, types.ModuleType)) is True:
-            continue # skip int and str constants, and child modules 
-        #if inspect.ismodule(object_type) is True:
-        #    continue
+            continue # skip int and str constants, and child modules
         if (
             inspect.isfunction(object_type) is True
             or inspect.isbuiltin(object_type) is True
             or inspect.ismethod(object_type) is True
         ):
-            sig = inspect.Signature.from_callable(object_type)
-            signat = sig.from_callable(object_type)
-            if signat:
-                print(f"NAME:\t {object_name}{signat}")
+            s = inspect.Signature.from_callable(object_type)
+            sig = s.from_callable(object_type)
+            if sig:
+                print(f"NAME:\t {object_name}{sig}")
             else:
                 print("NAME:\t {object_name}()")
 

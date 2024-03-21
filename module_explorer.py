@@ -57,12 +57,7 @@ def main(args: list):
             except ValueError:
                 continue
 
-            # and use it if not empty
-            if sig:
-                print(f"NAME:\t {object_name}{sig}")
-            else:
-                print("NAME:\t {object_name}()")
-
+            print(f"NAME:\t {object_name}{sig}")
             print("TYPE:\t function")
         else:
             print("NAME:\t", object_name)

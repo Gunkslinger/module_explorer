@@ -1,6 +1,8 @@
 """
+Module Explorer v0.2.0
 Requires one arg: module name.
-Prints out lots of info about the module including comments from it's author
+Prints out lots of info about the module including comments from it's author.
+It's no pydoc but it's fun to work on. Would be nice to have a Qt GUI!
 """
 
 import sys
@@ -8,46 +10,63 @@ import importlib
 import inspect
 import types
 
+VERSION = "v0.2.0"
 
-try:
-    module_name = sys.argv[1].split(".")[0] # remove suffix and discard it
-except IndexError:
-    print("Module Explorer v 0.1\n view documentation directly from python modules")
-    print(f"\nUsage: python {sys.argv[0]} <module>[.py|.pyi] | <package>")
-    sys.exit(0)
+def main(args: list):
+    """main"""
+    try:
+        module_name = args[1].split(".")[0]  # remove suffix and discard it
+    except IndexError:
+        print(f"Module Explorer {VERSION}\n view documentation directly from python modules")
+        print(f"\nUsage: python {sys.argv[0]} <module>[.py|.pyi] | <package>")
+        sys.exit(0)
 
-# try to import the module we want to inspect.
-# h/t to https://stackoverflow.com/questions/301134
+    # try to import the module we want to inspect.
+    # h/t to https://stackoverflow.com/questions/301134
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError:
+        print(f"Can't import {args[1]}! Bailing!")
+        sys.exit(0)
 
-try:
-    module = importlib.import_module(module_name)
-except ImportError:
-    print(f"Can't import {module_name}! Bailing!")
-    sys.exit(0)
+    # get all of it's member objects
+    module_members_list = inspect.getmembers(module)
 
-# get all of it's member objects
-module_members = inspect.getmembers(module)
+    # print header
+    header_str = f"\t\t\t{module.__name__}\n\n{inspect.getdoc(module)}\n"
+    print(header_str)
 
-# print header
-header = f"\t\t\t{module.__name__}\n\n{inspect.getdoc(module)}\n"
-print(header)
+    # go through the members list of tuples and get the info we want
+    for object_name, object_type in module_members_list:
+        if object_name.find("__") >= 0:
+            continue  # skip dunders
+        if isinstance(object_type, (int, str, types.ModuleType)) is True:
+            continue # skip int and str constants, and child modules 
+        #if inspect.ismodule(object_type) is True:
+        #    continue
+        if (
+            inspect.isfunction(object_type) is True
+            or inspect.isbuiltin(object_type) is True
+            or inspect.ismethod(object_type) is True
+        ):
+            sig = inspect.Signature.from_callable(object_type)
+            signat = sig.from_callable(object_type)
+            if signat:
+                print(f"NAME:\t {object_name}{signat}")
+            else:
+                print("NAME:\t {object_name}()")
 
-# go through the members list of tuples and get the info we want
-for module_name, module_type in module_members:
-    if module_name.find("__") >= 0:  # skip dunders
-        continue
-    if (
-        isinstance(
-            module_type,  # skip int and str vars, and child modules
-            (int, str, types.ModuleType),
-        )
-        is True
-    ):
-        continue
-    print("NAME:\t", module_name)
-    print("TYPE:\t", module_type)
-    if module_type.__doc__ is None:
-        print("DOCS:\tUndocumented")
-    else:
-        print("DOCS:\t", module_type.__doc__)
-    print("\n\n")
+            print("TYPE:\t function")
+        else:
+            print("NAME:\t", object_name)
+            print("TYPE:\t", object_type)
+
+        if object_type.__doc__ is None:
+            print("DOCS:\tUndocumented")
+        else:
+            print("DOCS:\t", object_type.__doc__.strip())
+        print("\n\n")
+
+
+if __name__ == "__main__":
+    main(sys.argv)

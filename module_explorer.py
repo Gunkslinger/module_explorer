@@ -6,19 +6,23 @@ It's no pydoc but it's fun to work on. Would be nice to have a Qt GUI!
 """
 
 import sys
+import os
 import importlib
 import inspect
 import types
 
 VERSION = "v0.2.0"
+PROGNAME = os.path.basename(sys.argv[0])
 
 def main(args: list):
     """main"""
     try:
         module_name = args[1].split(".")[0]  # remove suffix and discard it
     except IndexError:
-        print(f"Module Explorer {VERSION}\n view documentation directly from python modules")
-        print(f"\nUsage: python {sys.argv[0]} <module>[.py|.pyi] | <package>")
+        print(
+            f"Module Explorer {VERSION}\n view documentation directly from python modules"
+        )
+        print(f"\nUsage: python {PROGNAME} <module>[.py|.pyi] | <package>")
         sys.exit(0)
 
     # try to import the module we want to inspect.
@@ -40,15 +44,20 @@ def main(args: list):
     for object_name, object_type in module_members_list:
         if object_name.find("__") >= 0:
             continue  # skip dunders: need to learn more about this
-        if isinstance(object_type, (int, str, types.ModuleType)) is True:
-            continue # skip int and str constants, and child modules
+        if isinstance(object_type, (int, str)) is True: #, types.ModuleType)) is True:
+            continue  # skip int and str constants, and child modules
         if (
             inspect.isfunction(object_type) is True
             or inspect.isbuiltin(object_type) is True
             or inspect.ismethod(object_type) is True
-        ):
-            s = inspect.Signature.from_callable(object_type)
-            sig = s.from_callable(object_type)
+        ):  # get the callable object's signature
+            try:
+                s = inspect.Signature.from_callable(object_type)
+                sig = s.from_callable(object_type)
+            except ValueError:
+                continue
+
+            # and use it if not empty
             if sig:
                 print(f"NAME:\t {object_name}{sig}")
             else:
@@ -62,7 +71,7 @@ def main(args: list):
         if object_type.__doc__ is None:
             print("DOCS:\tUndocumented")
         else:
-            print("DOCS:\t", object_type.__doc__.strip())
+            print("DOCS:\t", inspect.getdoc(object_type).strip())
         print("\n\n")
 
 
